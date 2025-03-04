@@ -1,6 +1,6 @@
 # Claude Code Integration with Archon
 
-This document provides information on integrating Claude Code with Archon, the AI agent builder framework.
+This document provides comprehensive information on integrating Claude Code with Archon, the AI agent builder framework.
 
 ## Overview
 
@@ -16,44 +16,84 @@ The Claude Code integration allows users to:
 - Original Repository: https://github.com/coleam00/Archon.git
 - Current Fork: https://github.com/ckoons/ArchonAgent.git
 
-## Setup Instructions
+## Quick Start Guide
 
-### Prerequisites
-- Archon running locally (default: http://localhost:8501)
-- Archon Graph Service API (default: http://localhost:8100)
-- Properly configured environment (.env file with API keys)
-- Python 3.11+ with required packages (pydantic-ai, mcp, etc.)
+**IMPORTANT: Always start Claude in the `ArchonAgent` directory to ensure all relative paths work correctly.**
 
-### Getting Started
+### Step 1: Start Archon Services
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/ckoons/ArchonAgent.git
-   cd ArchonAgent
-   ```
+First, launch Archon using Docker (recommended):
+```bash
+# Navigate to the ArchonAgent directory
+cd /Users/cskoons/projects/github/ArchonAgent
 
-2. Start Archon services:
-   ```bash
-   # If using Docker (recommended)
-   python run_docker.py
-   
-   # If running locally
-   streamlit run streamlit_ui.py
-   ```
+# Start Archon using Docker
+python run_docker.py
+```
 
-3. Run the setup script to verify configuration:
-   ```bash
-   python claude_setup_integration.py
-   ```
+This will start:
+- Streamlit UI on port 8501 (http://localhost:8501)
+- Graph Service on port 8100 (http://localhost:8100/health)
 
-4. Start the Claude Code MCP adapter:
-   ```bash
-   python claude_mcp_adapter.py
-   ```
+### Step 2: Complete Archon Setup (First-time Only)
 
-5. Use the Archon tools in Claude Code to create AI agents
+If this is your first time running Archon:
+1. Open http://localhost:8501 in your browser
+2. Navigate to the "Intro" tab
+3. Follow the guided setup process:
+   - Configure environment variables (API keys, model settings)
+   - Set up Supabase database connection
+   - Crawl Pydantic AI documentation
+   - Start the agent service
 
-## Available Tools
+### Step 3: Verify Graph Service Connection
+
+In a new terminal:
+```bash
+cd /Users/cskoons/projects/github/ArchonAgent
+python check_service.py
+```
+
+You should see: `Archon Graph Service is running!`
+
+### Step 4: Start Claude MCP Adapter
+
+In another terminal:
+```bash
+cd /Users/cskoons/projects/github/ArchonAgent
+python claude_integration/claude_mcp_adapter.py
+```
+
+You should see: `Claude Code MCP Adapter for Archon starting...`
+
+### Step 5: Test the Integration
+
+To verify everything is working:
+```bash
+cd /Users/cskoons/projects/github/ArchonAgent
+python claude_integration/claude_archon_example.py
+```
+
+## Hybrid Agent Creation Approach
+
+We use a hybrid approach for creating agents:
+
+1. **Use Archon for**:
+   - Initial agent structure
+   - Core functionality
+   - Pydantic AI best practices
+   - Complex tool chains
+   - RAG capabilities
+
+2. **Use Claude for**:
+   - Customizing and extending agents
+   - Adapting code to specific requirements
+   - Troubleshooting and debugging
+   - Fine-tuning prompts and behaviors
+
+This combines Archon's expertise in Pydantic AI patterns with Claude's ability to adapt code to your unique needs.
+
+## Available Claude Integration Tools
 
 The integration provides the following tools to Claude Code:
 
@@ -86,53 +126,66 @@ The generated agent code will be automatically inserted into your workspace afte
 - `.env.example` - Required environment variables
 - `requirements.txt` - Dependencies
 
-## Successfully Created Agents
+## GitHub Workflow
 
-### Weather Forecast Agent
-- Created in `agents/weather_agent_1740989316/`
-- Fetches current weather conditions and forecasts for multiple cities
-- Uses WeatherAPI.com to retrieve data including:
-  - Temperature, conditions, wind speed, humidity
-  - Air quality information
-  - Simple contextual information
-- Successfully tested with Atlanta and Beijing forecasts
+When making changes to the repository:
 
-## Testing the Integration
-
-You can test the integration without a full Claude Code setup:
-
+### Regular Syncing with Original Repo
 ```bash
-# Run the example script to see how Claude Code would interact with Archon
-python claude_archon_example.py
+# Navigate to your repository
+cd /Users/cskoons/projects/github/ArchonAgent
 
-# Test the direct implementation of agent code
-python claude_simple_test.py
+# Fetch updates from the original repository
+git fetch origin
 
-# Test the weather agent
-cd agents/weather_agent_1740989316
-python agent.py
+# Merge changes from original repository into your main branch
+git merge origin/main
+
+# If there are conflicts, resolve them manually
+# Then commit the resolved conflicts:
+git add .
+git commit -m "Resolve merge conflicts with original repository"
+
+# Push the merged changes to your GitHub repository
+git push ckoons main
 ```
+
+### Making Claude Integration Changes
+```bash
+# Make changes to files in the claude_integration directory
+cd /Users/cskoons/projects/github/ArchonAgent/claude_integration
+
+# Commit your changes
+git add .
+git commit -m "Improve Claude integration: [description of changes]"
+
+# Push your changes
+git push ckoons main
+```
+
+This workflow maintains a clean separation between the original code and your Claude integration.
 
 ## Troubleshooting
 
-- If connection fails, ensure Archon is running and graph service is accessible
-- Check logs in `workbench/claude_logs.txt` for detailed error information
-- For debugging, use `claude_mcp_adapter_debug.py` which works even if the Archon API is unstable
-- Verify environment variables are properly set in `.env` files
-- If pushing changes to GitHub, ensure you're using the correct remote:
+- **Connection Issues**: If the standard adapter doesn't connect, use the debug version:
   ```bash
-  # Add your fork as a remote (if not already added)
-  git remote add ckoons https://github.com/ckoons/ArchonAgent.git
-  
-  # Push to your fork instead of the original repository
-  git push ckoons main
+  python claude_integration/claude_mcp_adapter_debug.py
   ```
+
+- **Service Not Found**: If you get "Service not found" errors:
+  1. Check if Docker containers are running: `docker ps`
+  2. Restart Archon services: `python run_docker.py`
+  3. Verify Graph Service: `curl http://localhost:8100/health`
+
+- **Log Files**: Check logs in `workbench/claude_logs.txt` for detailed error information
+
+- **Environment Variables**: Verify environment variables are properly set in `.env` files
 
 ## Useful Commands
 
 - `python run_docker.py` - Start Archon in Docker containers
 - `streamlit run streamlit_ui.py` - Start Archon UI locally
-- `python claude_mcp_adapter.py` - Start the Claude Code MCP adapter
+- `python claude_integration/claude_mcp_adapter.py` - Start the Claude Code MCP adapter
 - `python check_service.py` - Check if the Archon graph service is running
 - `git remote -v` - View remote repositories
 - `git push ckoons main` - Push changes to your fork
@@ -143,18 +196,3 @@ python agent.py
 - [Pydantic AI Documentation](https://docs.pydantic.ai)
 - [LangGraph Documentation](https://python.langchain.com/docs/langgraph)
 - [MCP Documentation](https://anthropic.github.io/anthropic-tools/mcp/server/)
-
-## Known Limitations
-
-- The current implementation requires both Archon and Claude Code to be running on the same machine
-- The MCP adapter does not yet support streaming responses from Archon
-- Authentication between Claude Code and the MCP adapter is not yet implemented
-
-## Potential Enhancements
-
-- Add support for hourly forecasts and weather alerts to the weather agent
-- Create additional agents (news summarizer, translation tool, etc.)
-- Improve error handling and add streaming support to the Claude Code integration
-- Test with alternative weather APIs or data sources
-- Develop a more sophisticated UI for interacting with generated agents
-- Create additional documentation and examples in the repository
