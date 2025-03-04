@@ -43,7 +43,7 @@ The Claude Code integration allows users to:
 
 3. Run the setup script to verify configuration:
    ```bash
-   python setup_claude_integration.py
+   python claude_setup_integration.py
    ```
 
 4. Start the Claude Code MCP adapter:
@@ -106,7 +106,7 @@ You can test the integration without a full Claude Code setup:
 python claude_archon_example.py
 
 # Test the direct implementation of agent code
-python simple_test.py
+python claude_simple_test.py
 
 # Test the weather agent
 cd agents/weather_agent_1740989316
